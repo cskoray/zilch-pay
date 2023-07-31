@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: zilch-pay
+spec:
+  selector:
+    app: zilch-pay
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zilch-pay
+spec:
+  selector:
+    matchLabels:
+      app: zilch-pay
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: zilch-pay
+    spec:
+      containers:
+        - name: zilch-pay
+          image: zilch-pay:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8085
+          env:
+          - name: DATASOURCE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: username
+          - name: DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: password
